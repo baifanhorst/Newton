@@ -1,0 +1,92 @@
+# Classical Newton method
+
+# List of error norms
+norm_err_list_CL = []
+# Iteration count
+iter_list_CL = []
+# Initial guess
+x = x0.copy()
+
+# Initial iteration
+iter_list_CL.append(0)
+
+J = jac(x[0], x[1])
+F = func(x[0], x[1])
+dx = np.linalg.solve(J, -F)
+norm_err_old = np.linalg.norm(dx)
+norm_err_list_CL.append(norm_err_old)
+
+if norm_err_old <= XTOL:
+    x += dx
+    print("Converged at step 0")
+    print("Solution:", x)
+else:
+    x += dx
+
+    for i in range(1, MAX_ITER):
+
+        iter_list_CL.append(i)
+        
+        J = jac(x[0], x[1])
+        F = func(x[0], x[1])
+        dx = np.linalg.solve(J, -F)
+        norm_err = np.linalg.norm(dx)
+        norm_err_list_CL.append(norm_err)
+        if norm_err <= XTOL:
+            x += dx
+            print(f"Converged at step {i}")
+            print("Solution:", x)
+            break
+        else:
+            x += dx
+            norm_err_old = norm_err 
+        
+
+
+
+
+# Deuflhard's local error-based Newton method
+
+# List of error norms
+norm_err_list_DH = []
+# Iteration count
+iter_list_DH = []
+# Initial guess
+x = x0.copy()
+
+# Initial iteration
+J = jac(x[0], x[1])
+F = func(x[0], x[1])
+dx = np.linalg.solve(J, -F)
+norm_err_old = np.linalg.norm(dx)
+norm_err_list_DH.append(norm_err_old)
+iter_list_DH.append(0)
+if norm_err_old <= XTOL:
+    x += dx
+    print("Converged at step 0")
+    print("Solution:", x)
+else:
+    x += dx
+
+    for i in range(1, MAX_ITER):
+        
+        iter_list_DH.append(i)
+
+        J = jac(x[0], x[1])
+        F = func(x[0], x[1])
+        dx = np.linalg.solve(J, -F)
+        norm_err = np.linalg.norm(dx)
+        norm_err_list_DH.append(norm_err)
+        Theta = norm_err / norm_err_old
+        if Theta >= 1:
+            print(f"Iteration {i}: No convergence, Theta = {Theta:.2f}")
+            break
+        elif norm_err / (1 - Theta) <= XTOL:
+            x += dx
+            print(f"Converged at step {i}")
+            print("Solution:", x)
+            break
+        else:
+            x += dx
+            norm_err_old = norm_err 
+        
