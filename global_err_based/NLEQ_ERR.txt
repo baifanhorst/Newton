@@ -1,0 +1,82 @@
+The following is extracted from my latex notes:
+
+\begin{alg}[NLEQ-ERR]\label{alg:GN:NLEQ-ERR}
+\begin{enumerate}[label=\enumlabel]
+	\item Choose $\vb{x}^0$, $\lambda_0$, $k_{max}$, $i_{max}$, $XTOL$, $\lambda_{min}$.
+	\item For $k = 0, 1, \ldots, k_{max}-1$:
+	\begin{enumerate}
+		\item Evaluate $\vb{F}(\vb{x}^k)$, $\vb{F}'(\vb{x}^k)$.
+		\item Solve $\vb{F}'(\vb{x}^k) \Delta\vb{x}^k = -\vb{F}(\vb{x}^k)$ for $\Delta\vb{x}^k$.
+		\item If $\norm{\Delta\vb{x}^k} \leq XTOL$, exit with solution $\vb{x}^* = \vb{x}^k$. 
+		\item If $k = 0$, set $[\bar{\lambda}_0^0] = \lambda_0$.
+		\item If $k > 0$, set
+		\begin{gather}
+			\frac{1}{[h_k^0]}
+			=
+			\frac{
+				\norm{ \Delta\vb{x}^{k-1} } 
+				\norm{ \bar{\Delta}\vb{x}^{k-1,i^*} }
+			}{
+				\norm{ \bar{\Delta}\vb{x}^{k-1,i^*} - \Delta\vb{x}^k }
+				\norm{\Delta\vb{x}^k}
+			} [\bar{\lambda}_{k-1}^{i^*}] \notag \\
+			%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+			[\bar{\lambda}_k^0] = \min\myset{1, \frac{1}{[h_k^0]} } \notag
+		\end{gather}
+		If $[\bar{\lambda}_k^0] < \lambda_{min}$, terminate with convergence failure.
+		\item Reset $i^* = -1$, $i = 0$.
+		\item For $i = 0, 1, \ldots, i_{max}$:
+		\begin{itemize}
+			\item $\vb{x}^{k, i} = \vb{x}^k + [\bar{\lambda}_k^i] \Delta\vb{x}^k$.
+			\item Evaluate $\vb{F}(\vb{x}^{k, i})$.
+			\item Solve $\vb{F}'(\vb{x}^k) \bar{\Delta}\vb{x}^{k, i} = -\vb{F}(\vb{x}^{k, i})$ for $\bar{\Delta}\vb{x}^{k, i}$.
+			\item Evaluate
+			\begin{gather}
+				\Theta_k^i = 
+				\frac{
+					\norm{ \bar{\Delta}\vb{x}^{k, i} }
+				}{
+					\norm{\Delta\vb{x}^k}
+				} \notag \\
+				%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+				\frac{1}{[h_k^i]} \coloneqq
+				\frac{
+					[\bar{\lambda}_k^i]^2 \norm{\Delta\vb{x}^k}
+				}{
+					2 \norm{
+						\bar{\Delta}\vb{x}^{k, i}
+						-
+						(1 - [\bar{\lambda}_k^i]) \Delta\vb{x}^k
+					}
+				} \notag 
+			\end{gather}
+			\item If $\Theta_k^i > 1 - [\bar{\lambda}_k^i] / 2$ (or the less restrictive $\Theta_k^i \geq 1$. 
+			Both conditions mean insufficient reduction of the error):
+			\begin{itemize}
+				\item Update step size
+				\begin{gather}
+					[\bar{\lambda}_k^{i+1}]
+					=
+					\min\myset{
+						\frac{[\bar{\lambda}_k^i]}{2},
+						\frac{1}{[h_k^i]}
+					} \notag
+				\end{gather}
+				\item If $[\bar{\lambda}_k^{i+1}] < \lambda_{min}$, terminate with convergence failure.
+				\item Else, increase the counter: $i \gets i + 1$.
+			\end{itemize}
+			\item Else (sufficient error reduction), evalutate $[\bar{\lambda}_k'] = \min\myset{1, \frac{1}{[h_k^i]}}$ (we do not accept the step size immediately).
+			\begin{itemize}
+				\item If $[\bar{\lambda}_k'] = [\bar{\lambda}_k^i] = 1$
+				\begin{itemize}
+					\item If $\norm{ \bar{\Delta}\vb{x}^{k, i} } \leq XTOL$, exit with solution $\vb{x}^* = \vb{x}^{k, i}$.
+					\item Else if $\Theta_k^i < 1/2$ (the threshold $1/2$ is obtained in the analysis of the local error-based Newton methods), exit and switch to a local error-based Newton method with initial guess $\vb{x}^{k, i}$.
+				\end{itemize}
+				\item Else if $[\bar{\lambda}_k'] \geq 4 [\bar{\lambda}_k^i]$, set $[\bar{\lambda}_k^{i+1}] = [\bar{\lambda}_k']$ and $i \gets i + 1$.
+				\item Else, exit the while loop over $i$ with $i^* = i$ and $\vb{x}^{k+1} = \vb{x}^{k,i}$. 
+			\end{itemize}
+		\end{itemize}
+		\item If the line search loop ends with $i^* = -1$, terminate with convergence failure.
+	\end{enumerate}
+\end{enumerate}
+\end{alg}

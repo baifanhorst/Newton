@@ -22,22 +22,12 @@ def solve(func, jac, x0, XTOL, MAX_ITER):
         Approximate solution after convergence or maximum iterations.
     """
     
-    # # List of error norms
-    # norm_err_list = []
-    # # Iteration count
-    # iter_list = []
     
-    # Initial guess
     x = x0.copy()
-    
-    # Initial iteration
-    # iter_list.append(0)
-    
     J = jac(x)
     F = func(x)
     dx = np.linalg.solve(J, -F)
     norm_err_old = np.linalg.norm(dx)
-    # norm_err_list.append(norm_err_old)
     
     if norm_err_old <= XTOL:
         x += dx
@@ -47,9 +37,6 @@ def solve(func, jac, x0, XTOL, MAX_ITER):
         x += dx
 
         for i in range(1, MAX_ITER):
-
-            # iter_list.append(i)
-            
             J = jac(x)
             F = func(x)
             dx = np.linalg.solve(J, -F)
@@ -58,14 +45,11 @@ def solve(func, jac, x0, XTOL, MAX_ITER):
             if theta >= 1.0:
                 print("Convergence failure")
                 return False, x
-            # norm_err_list.append(norm_err)
             if norm_err / (1 - theta) <= XTOL:
-                x += dx
                 print(f"Converged at step {i}")
-                break
+                return True, x
             else:
                 x += dx
                 norm_err_old = norm_err 
     
-    # return x, iter_list, norm_err_list
-    return True, x
+    return False, x
